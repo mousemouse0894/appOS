@@ -20,7 +20,7 @@ export class HomePage implements OnInit {
     this.pcb.setPCB({
       id: this.pcb.getPCB().length + 1,
       status: "New",
-      arrivalT:  Math.floor(Math.random() * 5) + 1,//this.timeCPU,
+      arrivalT: Math.floor(Math.random() * 5) + 1, //this.timeCPU,
       execueT: 0,
       waittingT: 0,
       ioT: 0,
@@ -37,11 +37,11 @@ export class HomePage implements OnInit {
     }, 1000);
   }
 
-  public priorityQueue(): void {
+  private priorityQueue(): void {
     let start;
     let end;
     this.queue = [...this.pcb.getPCB()];
-    this.queue = this.insertion_Sort(
+    this.queue = this.queueSort(
       this.queue,
       "priority",
       0,
@@ -60,7 +60,7 @@ export class HomePage implements OnInit {
           i++;
           end = i;
         }
-        this.queue = this.insertion_Sort(
+        this.queue = this.queueSort(
           this.queue,
           "arrivalT",
           start,
@@ -68,14 +68,14 @@ export class HomePage implements OnInit {
         );
       }
     }
-    console.log(this.queue);
+    // console.log(this.queue);
   }
 
-  public insertion_Sort(arr, key2, start, end) {
+  private queueSort(arr, key2, start, end) {
     for (let i = start + 1; i < end; i++) {
       let key = arr[i];
       let j = i - 1;
-      while (j >= 0 && arr[j][key2] > key[key2]) {
+      while (j >= start && arr[j][key2] > key[key2]) {
         arr[j + 1] = arr[j];
         j = j - 1;
       }
@@ -83,4 +83,5 @@ export class HomePage implements OnInit {
     }
     return arr;
   }
+  
 }
