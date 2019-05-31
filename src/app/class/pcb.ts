@@ -8,6 +8,7 @@ export interface dataPCB {
   ioWattingT: number;
   priority: number;
   countPriority: number;
+  ternaroundT:number
 }
 
 export class PCB {
@@ -27,6 +28,6 @@ export class PCB {
 
   public setTerminate(index: number): void {
     this.pcb[index].status = "Terminate";
-    this.pcb.splice(index, 1);
+    // this.pcb.splice(index, 1);
   }
 }
