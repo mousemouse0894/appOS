@@ -7,6 +7,7 @@ export interface dataPCB {
   ioT: number;
   ioWattingT: number;
   priority: number;
+  countPriority: number;
 }
 
 export class PCB {
@@ -18,5 +19,14 @@ export class PCB {
 
   public setPCB(data: dataPCB): void {
     this.pcb.push(data);
+  }
+
+  public setReady(index: number): void {
+    this.pcb[index].status = "Ready";
+  }
+
+  public setTerminate(index: number): void {
+    this.pcb[index].status = "Terminate";
+    this.pcb.splice(index, 1);
   }
 }

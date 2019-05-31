@@ -10,22 +10,34 @@ export class HomePage implements OnInit {
   public pcb = new PCB();
   public timeCPU: number = 0;
   public queue: Array<any> = [];
+  public terminate: Array<any> = [];
+  public detailQueue: boolean = false;
+  private countPCB: number = 0;
+
   constructor() {}
 
   ngOnInit(): void {
     this.runCPU();
   }
 
+  public setTerminate(data: any, index: number): void {
+    this.terminate.push(data);
+    this.pcb.setTerminate(index);
+    this.priorityQueue();
+  }
+
   public setProcess(): void {
+    this.countPCB += 1;
     this.pcb.setPCB({
-      id: this.pcb.getPCB().length + 1,
+      id: this.countPCB,
       status: "New",
       arrivalT: Math.floor(Math.random() * 5) + 1, //this.timeCPU,
       execueT: 0,
       waittingT: 0,
       ioT: 0,
       ioWattingT: 0,
-      priority: Math.floor(Math.random() * 5) + 1
+      priority: Math.floor(Math.random() * 5) + 1,
+      countPriority: 0
     });
 
     this.priorityQueue();
@@ -33,6 +45,23 @@ export class HomePage implements OnInit {
 
   public runCPU(): void {
     setInterval(() => {
+      for (let i = 0; i < this.pcb.getPCB().length; i++) {
+        this.pcb.getPCB()[i].countPriority += 1;
+        if (this.pcb.getPCB()[i].status == "New") {
+          this.pcb.getPCB()[i].status = "Ready";
+        }
+        if (this.pcb.getPCB()[i].status == "Ready") {
+          this.pcb.getPCB()[i].waittingT += 1;
+        }
+        if (this.pcb.getPCB()[i].countPriority == 10) {
+          this.pcb.getPCB()[i].countPriority = 0;
+          if (this.pcb.getPCB()[i].priority > 1) {
+            this.pcb.getPCB()[i].priority -= 1;
+            this.priorityQueue();
+          }
+        }
+      }
+
       this.timeCPU += 1;
     }, 1000);
   }
@@ -40,13 +69,10 @@ export class HomePage implements OnInit {
   private priorityQueue(): void {
     let start;
     let end;
+
     this.queue = [...this.pcb.getPCB()];
-    this.queue = this.queueSort(
-      this.queue,
-      "priority",
-      0,
-      this.queue.length
-    );
+
+    this.queue = this.queueSort(this.queue, "priority", 0, this.queue.length);
     for (let i = 0; i < this.queue.length; i++) {
       if (
         i + 1 < this.queue.length &&
@@ -60,12 +86,7 @@ export class HomePage implements OnInit {
           i++;
           end = i;
         }
-        this.queue = this.queueSort(
-          this.queue,
-          "arrivalT",
-          start,
-          end + 1
-        );
+        this.queue = this.queueSort(this.queue, "arrivalT", start, end + 1);
       }
     }
     // console.log(this.queue);
@@ -81,7 +102,7 @@ export class HomePage implements OnInit {
       }
       arr[j + 1] = key;
     }
+
     return arr;
   }
-  
 }
