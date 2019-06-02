@@ -112,6 +112,13 @@ export class HomePage implements OnInit {
         }
       }
 
+      if (this.terminate.length > 0) {
+        // Array Terminate
+        for (let i = 0; i < this.terminate.length; i++) {
+          this.pcb.setTerminate(this.terminate[i].id);
+        }
+      }
+
       this.timeCPU += 1;
     }, 1000);
   }
@@ -159,9 +166,8 @@ export class HomePage implements OnInit {
   }
 
   private getNotAllElement(arr, status1, status2): Array<dataPCB> {
-    var indexes = [],
-      i;
-    for (i = 0; i < arr.length; i++)
+    let indexes = [];
+    for (let i = 0; i < arr.length; i++)
       if (arr[i].status != status1 && arr[i].status != status2)
         indexes.push(arr[i]);
     return indexes;
