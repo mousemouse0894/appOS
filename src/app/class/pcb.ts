@@ -1,15 +1,4 @@
-export interface dataPCB {
-  id: number;
-  status: "New" | "Ready" | "Running" | "Waitting" | "Terminate";
-  arrivalT: number;
-  execueT: number;
-  waittingT: number;
-  ioT: number;
-  ioWattingT: number;
-  priority: number;
-  countPriority: number;
-  ternaroundT:number
-}
+import { dataPCB } from '../interfaces/dataPCB';
 
 export class PCB {
   private pcb: Array<dataPCB> = [];
@@ -24,6 +13,14 @@ export class PCB {
 
   public setReady(index: number): void {
     this.pcb[index].status = "Ready";
+  }
+
+  public setRunning(index: number): void {
+    this.pcb[index].status = "Running";
+  }
+
+  public setWaitting(index: number): void {
+    this.pcb[index].status = "Waitting";
   }
 
   public setTerminate(index: number): void {

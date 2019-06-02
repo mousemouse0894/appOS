@@ -1,6 +1,7 @@
 import { Component, OnInit } from "@angular/core";
-import { PCB, dataPCB } from "../class/pcb";
-import { async } from "q";
+import { PCB } from "../class/pcb";
+import { dataPCB } from "../interfaces/dataPCB";
+import { dataTerminate } from "../interfaces/dataTerminate";
 
 @Component({
   selector: "app-home",
@@ -11,7 +12,8 @@ export class HomePage implements OnInit {
   public pcb = new PCB();
   public timeCPU: number = 0;
   public queue: Array<dataPCB> = [];
-  public terminate: Array<any> = [];
+  public terminate: Array<dataTerminate> = [];
+  public io: Array<dataPCB> = [];
   public detailQueue: boolean = false;
   public avgWatting: number = 0;
   public avgTernaround: number = 0;
@@ -19,6 +21,18 @@ export class HomePage implements OnInit {
 
   ngOnInit(): void {
     this.runCPU();
+  }
+
+  public pushIO(data: dataPCB): void {
+    this.io.push(data);
+    this.pcb.setWaitting(data.id);
+    this.priorityQueue();
+  }
+
+  public popIO(): void {
+    this.pcb.setReady(this.io[0].id);
+    this.io.splice(0, 1);
+    this.priorityQueue();
   }
 
   public setTerminate(data: any, index: number): void {
@@ -54,45 +68,48 @@ export class HomePage implements OnInit {
     this.priorityQueue();
   }
 
-  public runCPU(): void {
+  private runCPU(): void {
     setInterval(() => {
-      for (let i = 0; i < this.pcb.getPCB().length; i++) {
-        if (this.pcb.getPCB()[i].status == "New") {
-          this.pcb.getPCB()[i].status = "Ready";
-        }
-
-        if (this.pcb.getPCB()[i].status == "Ready") {
-          this.pcb.getPCB()[i].waittingT += 1;
-          this.pcb.getPCB()[i].countPriority += 1;
-        }
-
-        if (this.pcb.getPCB()[i].status == "Running") {
-          this.pcb.getPCB()[i].execueT += 1;
-        }
-
-        if (this.pcb.getPCB()[i].countPriority == 20) {
-          this.pcb.getPCB()[i].countPriority = 0;
-          this.pcb.getPCB()[i].priority -= 1;
-          this.priorityQueue();
-        }
-      }
-
-      for (
-        let i = 1;
-        this.queue.length > 1 &&
-        this.queue[0].status != "Running" &&
-        i < this.queue.length;
-        i++
-      ) {
-        if (this.queue[i].status == "Running") {
-          this.queue[i].status = "Ready";
-          this.pcb.setReady(i);
+      if (this.pcb.getPCB().length > 0) {
+        // Array PCB
+        for (let i = 0; i < this.pcb.getPCB().length; i++) {
+          if (this.pcb.getPCB()[i].status == "New") {
+            this.pcb.setReady(i);
+          } else if (this.pcb.getPCB()[i].status == "Ready") {
+            this.pcb.getPCB()[i].waittingT += 1;
+            this.pcb.getPCB()[i].countPriority += 1;
+            if (this.pcb.getPCB()[i].countPriority == 20) {
+              this.pcb.getPCB()[i].countPriority = 0;
+              this.pcb.getPCB()[i].priority -= 1;
+              this.priorityQueue();
+            }
+          } else if (this.pcb.getPCB()[i].status == "Running") {
+            this.pcb.getPCB()[i].execueT += 1;
+          }
         }
       }
 
       if (this.queue.length > 0) {
+        // Array Queue
         this.queue[0].status = "Running";
         this.pcb.getPCB()[this.queue[0].id].status = "Running";
+        for (let i = 1; i < this.queue.length; i++) {
+          if (this.queue[i].status == "Running") {
+            this.queue[i].status = "Ready";
+            this.pcb.setReady(i);
+          }
+        }
+      }
+
+      if (this.io.length > 0) {
+        // Array I/O
+        this.pcb.getPCB()[this.io[0].id].ioT += 1;
+        for (let i = 0; i < this.io.length; i++) {
+          this.pcb.setWaitting(this.io[i].id);
+          if (i > 0) {
+            this.pcb.getPCB()[this.io[i].id].ioWattingT += 1;
+          }
+        }
       }
 
       this.timeCPU += 1;
@@ -100,9 +117,15 @@ export class HomePage implements OnInit {
   }
 
   private priorityQueue(): void {
-    let start;
-    let end;
-    this.queue = this.getNotAllElement([...this.pcb.getPCB()], "Terminate");
+    let start: number;
+    let end: number;
+    this.queue = [];
+    this.queue = this.getNotAllElement(
+      [...this.pcb.getPCB()],
+      "Waitting",
+      "Terminate"
+    );
+    // console.log(this.queue);
     this.queue = this.queueSort(this.queue, "priority", 0, this.queue.length);
     for (let i = 0; i < this.queue.length; i++) {
       if (
@@ -122,7 +145,7 @@ export class HomePage implements OnInit {
     }
   }
 
-  private queueSort(arr, key2, start, end) {
+  private queueSort(arr, key2, start, end): Array<dataPCB> {
     for (let i = start + 1; i < end; i++) {
       let key = arr[i];
       let j = i - 1;
@@ -132,15 +155,15 @@ export class HomePage implements OnInit {
       }
       arr[j + 1] = key;
     }
-
     return arr;
   }
 
-  private getNotAllElement(arr, val) {
+  private getNotAllElement(arr, status1, status2): Array<dataPCB> {
     var indexes = [],
       i;
     for (i = 0; i < arr.length; i++)
-      if (arr[i].status !== val) indexes.push(arr[i]);
+      if (arr[i].status != status1 && arr[i].status != status2)
+        indexes.push(arr[i]);
     return indexes;
   }
 }

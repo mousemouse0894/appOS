@@ -30,7 +30,7 @@
           <br />
           <div style="overflow: auto;height: 250px;">
             <table class="table table-sm table-bordered table-hover">
-              <thead class="bg-success text-white">
+              <thead class="bg-primary text-white">
                 <tr>
                   <th scope="col">ID</th>
                   <th scope="col">Status</th>
@@ -49,7 +49,14 @@
                   [hidden]="x.status == 'Terminate'"
                 >
                   <td>{{ x.id + 1 }}</td>
-                  <td>{{ x.status }}</td>
+                  <td
+                    [ngClass]="{
+                      'bg-success': x.status == 'Running',
+                      'bg-warning': x.status == 'Waitting'
+                    }"
+                  >
+                    {{ x.status }}
+                  </td>
                   <td>{{ x.arrivalT }}</td>
                   <td>{{ x.execueT }}</td>
                   <td>{{ x.waittingT }}</td>
@@ -93,7 +100,7 @@
           <br />
           <div style="overflow: auto;height: 250px;">
             <table class="table table-sm table-bordered table-hover">
-              <thead class="bg-success text-white text-center">
+              <thead class="bg-primary text-white text-center">
                 <th scope="col">ID</th>
                 <th scope="col" *ngIf="detailQueue == true">Arrival</th>
                 <th scope="col" *ngIf="detailQueue == true">Priority</th>
@@ -127,11 +134,58 @@
           </div>
           <br />
           <div style="overflow: auto;height: 250px;">
-            Hello
+            <table class="table table-sm table-bordered">
+              <thead class="text-center">
+                <tr class="bg-primary text-white text-center">
+                  <th style="vertical-align: middle;">
+                    ID
+                  </th>
+                  <th style="vertical-align: middle;">
+                    Status
+                  </th>
+                  <th style="vertical-align: middle;">
+                    <button
+                      mat-raised-button
+                      color="accent"
+                      style="line-height:30px;width: 100%"
+                      [disabled]="queue.length <= 0"
+                      (click)="pushIO(queue[0])"
+                    >
+                      ADD
+                    </button>
+                  </th>
+                </tr>
+              </thead>
+              <tbody *ngIf="io.length > 0">
+                <tr *ngFor="let x of io; let i = index">
+                  <td style="vertical-align: middle;">{{ x.id + 1 }}</td>
+                  <td
+                    [ngClass]="{
+                      'bg-success': i == 0,
+                      'bg-warning': i > 0
+                    }"
+                    style="vertical-align: middle;"
+                  >
+                    {{ i == 0 ? "Running" : "Waitting" }}
+                  </td>
+                  <td style="vertical-align: middle;">
+                    <button
+                      mat-raised-button
+                      color="warn"
+                      style="line-height:30px;width: 100%"
+                      [disabled]="i > 0"
+                      (click)="popIO()"
+                    >
+                      Close
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         </mat-card>
       </div>
-      <div class="col-md mb-3">
+      <div class="col-md-5 mb-3">
         <mat-card style="overflow: auto;height: 350px;">
           <div class="row">
             <div class="col-md text-center">
@@ -141,7 +195,7 @@
           <br />
           <div style="overflow: auto;height: 250px;">
             <table class="table table-sm table-bordered">
-              <thead class="bg-danger text-white text-center">
+              <thead class="bg-primary text-white text-center">
                 <tr>
                   <th>
                     ID
@@ -173,7 +227,7 @@
           </div>
         </mat-card>
       </div>
-      <div class="col-md mb-3">
+      <div class="col-md-4 mb-3">
         <mat-card style="overflow: auto;height: 350px;">
           <div class="row">
             <div class="col-md text-center">
@@ -217,9 +271,26 @@
                         )
                       "
                       [disabled]="queue.length == 0"
-                      style="line-height:25px;"
+                      style="line-height:30px;width: 100%"
                     >
                       Terminate
+                    </button>
+                  </td>
+                </tr>
+                <tr>
+                  <th style="vertical-align: middle;">I/O Process</th>
+                  <td style="vertical-align: middle;" class="text-center">
+                    {{ io.length > 0 ? io[0].id + 1 : "Null" }}
+                  </td>
+                  <td style="vertical-align: middle;" class="text-center">
+                    <button
+                      mat-raised-button
+                      color="warn"
+                      style="line-height:30px;width: 100%"
+                      [disabled]="io.length == 0"
+                      (click)="popIO()"
+                    >
+                      Close
                     </button>
                   </td>
                 </tr>
