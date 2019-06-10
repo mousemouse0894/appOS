@@ -20,9 +20,10 @@
                 <button
                   mat-raised-button
                   color="primary"
+                  [disabled]="memory > 3596"
                   (click)="setProcess()"
-                >
-                  Add Process
+                >{{memory > 3596 ? "Out of Memory": "Add Process"}}
+                  
                 </button>
               </div>
             </div>
@@ -39,7 +40,8 @@
                   <th scope="col">Waitting Time</th>
                   <th scope="col">I/O Time</th>
                   <th scope="col">I/O WTime</th>
-                  <th scope="col">priority</th>
+                  <th scope="col">Priority</th>
+                  <th scope="col" *ngIf="detailQueue == true">Memory</th>
                   <th scope="col" *ngIf="detailQueue == true">Count = 20</th>
                 </tr>
               </thead>
@@ -63,6 +65,7 @@
                   <td>{{ x.ioT }}</td>
                   <td>{{ x.ioWattingT }}</td>
                   <td>{{ x.priority }}</td>
+                  <td *ngIf="detailQueue == true">{{ x.size }}</td>
                   <td *ngIf="detailQueue == true">{{ x.countPriority }}</td>
                 </tr>
               </tbody>
@@ -129,7 +132,7 @@
         <mat-card style="overflow: auto;height: 350px;">
           <div class="row">
             <div class="col-md text-center">
-              <h3>I/O Queue</h3>
+              <h3>I/O Queue (USB)</h3>
             </div>
           </div>
           <br />
@@ -166,7 +169,7 @@
                     }"
                     style="vertical-align: middle;"
                   >
-                    {{ i == 0 ? "Running" : "Waitting" }}
+                    {{ i == 0 ? "I/O Running" : "Waitting" }}
                   </td>
                   <td style="vertical-align: middle;">
                     <button
@@ -312,6 +315,16 @@
                     class="text-center"
                   >
                     {{ avgTernaround.toFixed(2) }}
+                  </td>
+                </tr>
+                <tr>
+                  <th style="vertical-align: middle;">RAM</th>
+                  <td
+                    style="vertical-align: middle;"
+                    colspan="2"
+                    class="text-center"
+                  >
+                    {{ memory }} MB / 4096 MB
                   </td>
                 </tr>
               </table>

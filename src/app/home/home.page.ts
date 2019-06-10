@@ -17,6 +17,7 @@ export class HomePage implements OnInit {
   public detailQueue: boolean = false;
   public avgWatting: number = 0;
   public avgTernaround: number = 0;
+  public memory: number = 0;
   constructor() {}
 
   ngOnInit(): void {
@@ -38,6 +39,7 @@ export class HomePage implements OnInit {
   public setTerminate(data: any, index: number): void {
     this.avgWatting = 0;
     this.avgTernaround = 0;
+    this.memory -= this.pcb.getPCB()[index].size
     this.terminate.push(data);
     this.pcb.setTerminate(index);
     this.priorityQueue();
@@ -49,6 +51,7 @@ export class HomePage implements OnInit {
 
     this.avgWatting /= this.terminate.length;
     this.avgTernaround /= this.terminate.length;
+   
   }
 
   public setProcess(): void {
@@ -62,9 +65,10 @@ export class HomePage implements OnInit {
       ioWattingT: 0,
       priority: Math.floor(Math.random() * 10) + 1,
       countPriority: 0,
-      ternaroundT: 0
+      ternaroundT: 0,
+      size:Math.floor(Math.random() * 400) + 100
     });
-
+    this.memory += this.pcb.getPCB()[this.pcb.getPCB().length-1].size
     this.priorityQueue();
   }
 
@@ -80,7 +84,9 @@ export class HomePage implements OnInit {
             this.pcb.getPCB()[i].countPriority += 1;
             if (this.pcb.getPCB()[i].countPriority == 20) {
               this.pcb.getPCB()[i].countPriority = 0;
+              if(this.pcb.getPCB()[i].priority > 1){
               this.pcb.getPCB()[i].priority -= 1;
+              }
               this.priorityQueue();
             }
           } else if (this.pcb.getPCB()[i].status == "Running") {
@@ -118,6 +124,8 @@ export class HomePage implements OnInit {
           this.pcb.setTerminate(this.terminate[i].id);
         }
       }
+
+      
 
       this.timeCPU += 1;
     }, 1000);

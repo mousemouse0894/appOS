@@ -9,4 +9,5 @@ export interface dataPCB {
   priority: number;
   countPriority: number;
   ternaroundT: number;
+  size:number;
 }
